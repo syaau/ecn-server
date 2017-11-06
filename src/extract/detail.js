@@ -27,8 +27,14 @@ async function saveVoterInfo(centerFolder, id) {
     return;
   }
 
-  const voterDetail = await queue(() => getVoterInfo(id));
-  const { image, ...other } = voterDetail;
+  let detail = null;
+  try {
+    detail = await queue(() => getVoterInfo(id));
+  } catch (err) {
+    detail = await queue(() => getVoterInfo(id));
+  }
+
+  const { image, ...other } = detail;
 
   // Save the file content
   fs.writeFileSync(voterFile, JSON.stringify(other));
@@ -54,16 +60,10 @@ async function processCenter(folder, centerId) {
     const voter = info.voters[i];
 
     try {
-      saveVoterInfo(centerFolder, voter.id);
+      await saveVoterInfo(centerFolder, voter.id);
       count += 1;
     } catch (e) {
-      // Try one more time
-      try {
-        saveVoterInfo(centerFolder, voter.id);
-        count += 1;
-      } catch (err) {
-        console.log('Failed to save voter Info for', voter.id, err.message);
-      }
+      console.log('Failed to save voter Info for', voter.id, e.message);
     }
   }
 
