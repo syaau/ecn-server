@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "babel src --out-dir build",
+    "extract": "npm run build && node build/extract/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ranjan Shrestha",

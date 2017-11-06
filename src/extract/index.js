@@ -48,7 +48,7 @@ function createQueue(concurrent = 8) {
  * Extract Data from the ECN server and store in dynamodb
  */
 async function main() {
-  const districts = (await getDistricts()).slice(0, 1);
+  const districts = await getDistricts();
   const queue = createQueue(16);
 
   const root = createDir(path.resolve('data'));
