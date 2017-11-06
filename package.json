@@ -1,0 +1,26 @@
+{
+  "name": "nirwachan-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "babel src --out-dir build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ranjan Shrestha",
+  "license": "MIT",
+  "dependencies": {
+    "scraper-ecn": "^1.1.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.0.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-import-export": "^1.0.2",
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0"
+  }
+}
