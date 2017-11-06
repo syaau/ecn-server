@@ -139,8 +139,8 @@ async function main(districtId) {
   for (let i = 0; i < districts.length; i += 1) {
     const district = districts[i];
     const dCount = await queue(() => processDistrict(root, district));
-    console.log(i + 1, 'District', district, 'Total Voters: ', dCount);
     count += dCount;
+    console.log(i + 1, 'District', district, 'Voters: ', `${dCount}. Total so far: ${count}`);
   }
 
   console.log('Total voters', count);
