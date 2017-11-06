@@ -16,16 +16,25 @@ function createDir(folder) {
 /**
  * Extract Data from the ECN server and store in dynamodb
  */
-async function main() {
-  const districts = await getDistricts();
-  const queue = createQueue(16);
+async function main(districtId) {
+  async function districts() {
+    if (districtId) {
+      return [districtId];
+    }
 
+    const res = await getDistricts();
+    return res.map(d => d.id);
+  }
+
+
+  const queue = createQueue(16);
   const root = createDir(path.resolve('data'));
-  districts.forEach(async (district) => {
-    const districtFolder = createDir(path.resolve(root, district.id));
-    const localBodies = await queue(() => getLocalBodies(district.id));
+  const list = await districts();
+  list.forEach(async (id) => {
+    const districtFolder = createDir(path.resolve(root, id));
+    const localBodies = await queue(() => getLocalBodies(id));
     fs.writeFileSync(path.resolve(districtFolder, 'meta.json'), JSON.stringify({
-      ...district,
+      id,
       localBodies,
     }));
     localBodies.forEach(async (localBody) => {
@@ -39,14 +48,14 @@ async function main() {
         const centers = await queue(() => getCenters(localBody.id, ward.number));
         centers.forEach(async (center) => {
           try {
-            const info = await queue(() => getVoterList(district.id, localBody.id, ward.number, center.id));
+            const info = await queue(() => getVoterList(id, localBody.id, ward.number, center.id));
             fs.writeFileSync(path.resolve(localBodyFolder, `${center.id}.json`), JSON.stringify({
               ...center,
               voters: info,
             }));
           } catch (err) {
-            console.log(`Error retreiving center info District: ${district.id}, Local: ${localBody.id}, Ward: ${ward.number}, Center: ${center.id}`);
-            const info = await queue(() => getVoterList(district.id, localBody.id, ward.number, center.id));
+            console.log(`Error retreiving center info District: ${id}, Local: ${localBody.id}, Ward: ${ward.number}, Center: ${center.id}`);
+            const info = await queue(() => getVoterList(id, localBody.id, ward.number, center.id));
             fs.writeFileSync(path.resolve(localBodyFolder, `${center.id}.json`), JSON.stringify({
               ...center,
               voters: info,
@@ -58,4 +67,4 @@ async function main() {
   });
 }
 
-main();
+main(process.argv[2]);
