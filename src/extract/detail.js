@@ -56,22 +56,27 @@ async function processCenter(folder, centerId) {
 
   const info = JSON.parse(fs.readFileSync(path.resolve(folder, `${centerId}.json`)));
   let count = 0;
-  for (let i = 0; i < info.voters.length; i += 1) {
-    const voter = info.voters[i];
+  let completed = 0;
 
-    try {
-      await saveVoterInfo(centerFolder, voter.id);
-      count += 1;
-    } catch (e) {
-      console.log('Failed to save voter Info for', voter.id, e.message);
-    }
-  }
+  return new Promise((resolve) => {
+    info.voters.forEach(async (voter) => {
+      try {
+        await saveVoterInfo(centerFolder, voter.id);
+        count += 1;
+      } catch (err) {
+        console.log('Failed to save voter Info for', voter.id, err.message);
+      }
 
-  fs.writeFileSync(processedFile, JSON.stringify({
-    total: count,
-  }));
+      completed += 1;
+      if (completed === info.voters.length) {
+        fs.writeFileSync(processedFile, JSON.stringify({
+          total: count,
+        }));
 
-  return count;
+        resolve(count);
+      }
+    });
+  });
 }
 
 async function processLocalBody(folder, id) {
